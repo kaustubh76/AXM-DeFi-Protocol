@@ -1,148 +1,85 @@
-import {
-  time,
-  loadFixture,
-} from "@nomicfoundation/hardhat-toolbox/network-helpers";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-describe("AXM", () => {
-  async function config() {
-    const amountToMint: number = 20000000; // 20 millions
-    const amountToMintWei = ethers.parseUnits(amountToMint.toString(), "ether");
-    const name = "AXIUM";
-    const symbol = "AXM";
-    const decimals = 18;
+describe("Axium Token Contract", function () {
+  async function deployAxiumContract() {
+    let Axium;
+    let axium;
+    let owner;
+    let addr1;
+    let addr2;
+    let addrs;
+    Axium = await ethers.getContractFactory("Axium");
+    [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
-    const signers = await ethers.getSigners();
-    const deployer = signers[0];
-    const managerAddress = process.env.MANAGER_PUBLIC_KEY!;
+    // Deploy Axium contract with initial allocations
+    const treasuryReserveVester = await addr1.getAddress();
+    const teamAndAdvisorsVester = await addr2.getAddress();
+    const missionVester = await addrs[0].getAddress();
+    const publicSaleAndAirdrop = await addrs[1].getAddress();
+    const marketingVester = await addrs[2].getAddress();
 
-    const VestingContract = await ethers.getContractFactory("Vester");
-    const vestingContract = await VestingContract.connect(deployer).deploy();
-    const vestingAddress = await vestingContract.getAddress();
+    const vesters = [
+      treasuryReserveVester,
+      teamAndAdvisorsVester,
+      missionVester,
+      publicSaleAndAirdrop,
+      marketingVester,
+    ];
 
-    const expectedManagerBalance = 19000000 * 10 ** 18; // 95%
-    const expectedVestingBalance = 1000000 * 10 ** 18; // 5%
+    const amounts = [
+      ethers.parseUnits("300000", 18),
+      ethers.parseUnits("100000", 18),
+      ethers.parseUnits("250000", 18),
+      ethers.parseUnits("250000", 18),
+      ethers.parseUnits("100000", 18),
+    ];
 
-    const Axium = await ethers.getContractFactory("AXIUM");
-    const axium = await Axium.connect(deployer).deploy(
-      managerAddress,
-      vestingAddress
-    );
-
+    axium = await Axium.deploy(vesters, amounts);
     return {
       axium,
-      amountToMint,
-      amountToMintWei,
-      managerAddress,
-      name,
-      symbol,
-      decimals,
-      deployer,
-      vestingAddress,
-      vestingContract,
-      expectedManagerBalance,
-      expectedVestingBalance,
+      owner,
+      addr1,
+      addr2,
+      addrs,
     };
   }
 
-  describe("Deployment", async () => {
-    it("Name", async () => {
-      const { name, axium } = await loadFixture(config);
-      expect(await axium.name()).to.equal(name);
-    });
+  it("Should return the correct name and symbol", async function () {
+    const { axium } = await loadFixture(deployAxiumContract);
+    expect(await axium.name()).to.equal("Axium");
+    expect(await axium.symbol()).to.equal("AXM");
+  });
 
-    it("Symbol", async () => {
-      const { symbol, axium } = await loadFixture(config);
-      expect(await axium.symbol()).to.equal(symbol);
-    });
+  it("Should return the correct initial supply and allocations", async function () {
+    const { axium, addr1, addr2, addrs } = await loadFixture(
+      deployAxiumContract
+    );
+    const totalSupply = await axium.totalSupply();
+    const treasuryReserveBalance = await axium.balanceOf(
+      await addr1.getAddress()
+    );
+    const teamAndAdvisorsBalance = await axium.balanceOf(
+      await addr2.getAddress()
+    );
+    const missionVesterBalance = await axium.balanceOf(
+      await addrs[0].getAddress()
+    );
+    const publicSaleAndAirdropBalance = await axium.balanceOf(
+      await addrs[1].getAddress()
+    );
+    const marketingVesterBalance = await axium.balanceOf(addrs[2].getAddress());
 
-    it("Decimals", async () => {
-      const { decimals, axium } = await loadFixture(config);
-      expect(await axium.decimals()).to.equal(decimals);
-    });
-
-    it("Amount Minted", async () => {
-      const { amountToMintWei, axium } = await loadFixture(config);
-      expect(await axium.totalSupply()).to.equal(amountToMintWei);
-    });
-
-    it("95% Total supply should be owned by Manager & 5% by dev vesting", async () => {
-      const {
-        managerAddress,
-        axium,
-        vestingAddress,
-        expectedManagerBalance,
-        expectedVestingBalance,
-      } = await loadFixture(config);
-      const managerBalance = await axium.balanceOf(managerAddress);
-      const vestingBalance = await axium.balanceOf(vestingAddress);
-      const totalSupply = await axium.totalSupply();
-
-      console.log(
-        "Manager Balance:",
-        ethers.formatEther(managerBalance.toString())
-      );
-      console.log(
-        "Vesting Balance:",
-        ethers.formatEther(vestingBalance.toString())
-      );
-      console.log("Total Supply:", ethers.formatEther(totalSupply.toString()));
-
-      expect(Number(managerBalance)).to.equal(expectedManagerBalance);
-      expect(Number(vestingBalance)).to.equal(expectedVestingBalance);
-    });
-
-    it("withdraw first vesting", async () => {
-      const { deployer, axium, expectedVestingBalance, vestingContract } =
-        await loadFixture(config);
-      const vestingAmount = expectedVestingBalance / 5;
-
-      await vestingContract.withdraw(await axium.getAddress());
-
-      const vestingBalance = await axium.balanceOf(deployer);
-
-      expect(Number(vestingBalance)).to.equal(vestingAmount);
-      console.log(
-        "Developer after first Vesting: ",
-        ethers.formatEther(vestingBalance.toString())
-      );
-    });
-
-    it("should withdraw the next vesting after 30 days", async () => {
-      const { deployer, axium, expectedVestingBalance, vestingContract } =
-        await loadFixture(config);
-      const vestingAmount = expectedVestingBalance / 5;
-
-      await vestingContract.withdraw(await axium.getAddress()); // First vesting
-      // Increase time by 30 days
-      for (let i = 0; i < 4; i++) {
-        await time.increase(32 * 24 * 60 * 60);
-        await vestingContract.withdraw(await axium.getAddress());
-      }
-
-      const vestingBalance = await axium.balanceOf(deployer);
-
-      console.log(
-        "Developer after total vesting (5 months): ",
-        ethers.formatEther(vestingBalance.toString())
-      );
-      expect(Number(vestingBalance)).to.equal(5 * vestingAmount);
-
-      // If the contract is empty of HVR then revert
-      await expect(vestingContract.withdraw(await axium.getAddress())).to.be
-        .reverted;
-    });
-
-    it("should revert if withdraw before 30 days", async () => {
-      const { axium, vestingContract } = await loadFixture(config);
-
-      await vestingContract.withdraw(await axium.getAddress()); // First vesting
-
-      // * It may not fail as the times are hardcoded in the contract, so maybe it get´s tested after the vesting period.
-      // * If so, it should not be reverted.
-      await expect(vestingContract.withdraw(await axium.getAddress())).to.be
-        .reverted;
-    });
+    expect(totalSupply).to.equal(
+      ethers.parseUnits("1000000", 18) // Total supply is the sum of all initial allocations
+    );
+    expect(treasuryReserveBalance).to.equal(ethers.parseUnits("300000", 18));
+    expect(teamAndAdvisorsBalance).to.equal(ethers.parseUnits("100000", 18));
+    expect(missionVesterBalance).to.equal(ethers.parseUnits("250000", 18));
+    expect(publicSaleAndAirdropBalance).to.equal(
+      ethers.parseUnits("250000", 18)
+    );
+    expect(marketingVesterBalance).to.equal(ethers.parseUnits("100000", 18));
   });
 });

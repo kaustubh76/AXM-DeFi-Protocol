@@ -4,18 +4,31 @@ pragma solidity 0.8.26;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**
- * @title Axium (HVR) ERC-20 Token
- * @author 0xCR6 - Axium Haven
+ * @title Axium (AXM) ERC-20 Token
+ * @dev This contract extends the OpenZeppelin ERC20 implementation to customize token deployment.
+ * @author Axium
  */
 contract Axium is ERC20 {
     /**
-     * @dev Initializes the Axium ERC-20 contract with the total supply.
-     * @param manager The address of the manager.
-     * @param vester The address of the vester contract.
-     * @notice The maximum token supply is set to 20 million tokens.
+     * @dev Initializes the Axium ERC-20 contract with the initial token allocations.
+     * @param receiver Array of receivers contract addresses.
+     * @param amounts Array of corresponding amounts to mint to each receiver.
      */
-    constructor(address manager, address vester) payable ERC20("Axium", "AXM") {
-        _mint(manager, 19000000 * 10 ** decimals());
-        _mint(vester, 1000000 * 10 ** decimals());
+    constructor(
+        address[] memory receiver,
+        uint256[] memory amounts
+    ) payable ERC20("Axium", "AXM") {
+        require(
+            receiver.length == amounts.length,
+            "Axium: Arrays length mismatch"
+        );
+
+        for (uint256 i = 0; i < receiver.length; i++) {
+            require(
+                receiver[i] != address(0),
+                "Axium: Receiver cannot be zero"
+            );
+            _mint(receiver[i], amounts[i]);
+        }
     }
 }

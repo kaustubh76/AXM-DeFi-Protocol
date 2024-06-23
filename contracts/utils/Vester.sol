@@ -6,29 +6,48 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /**
  * @title Vester - Vesting Contract
  * @dev A contract for distributing vested tokens over a period of time.
- * @author 0xCR6 - Harvest Haven
  */
 contract Vester {
-    uint256 public constant totalLocked = 1000000 ether; // Total amount of tokens to be vested
-    uint256 public constant vestingPeriod = 5; // 5 months vesting period
+    string public name; // Name of the vesting contract
     uint256 public constant vestingInterval = 30 days; // 30 days per interval
-    uint256 public vestingsClaimed = 0; // Amount of vestings claimed
-    address public immutable owner; // Owner of the contract
-    uint256[] public vestingSchedule = [
-        0,
-        1710284400, // Example: March 13, 2024, 00:00:00 GMT+2
-        1712959200,
-        1715551200,
-        1718229600
-    ]; // Vesting schedule: Every 13th of each month at 00:00:00 GMT+2
+    uint256 public immutable totalLocked; // Total amount of tokens to be vested
+    uint256 public immutable vestingPeriod; // Vesting period in months
+    uint256 public vestingsClaimed = 0; // Number of vestings claimed so far
+    address public immutable owner; // Address with permissions to claim the token vesting
+    uint256[] public vestingSchedule; // Timestamps representing the vesting schedule
 
     event Withdrawn(address indexed beneficiary, uint256 amount);
+    event EmergencyWithdrawn(address indexed beneficiary, uint256 amount);
 
     /**
      * @dev Contract constructor
+     * @param _name The name of the vesting contract
+     * @param _totalLocked The total amount of tokens to be vested
+     * @param _vestingPeriod The vesting period in months
+     * @param _vestingClaimer Address with permissions to claim the token vesting
+     * @param _vestingStartMonth The number of months from deployment until vesting starts
      */
-    constructor() {
-        owner = msg.sender;
+    constructor(
+        string memory _name,
+        uint256 _totalLocked,
+        uint256 _vestingPeriod,
+        address _vestingClaimer,
+        uint8 _vestingStartMonth
+    ) {
+        // First vesting
+        vestingSchedule.push(
+            block.timestamp + (vestingInterval * _vestingStartMonth)
+        );
+
+        name = _name;
+        owner = _vestingClaimer;
+        totalLocked = _totalLocked;
+        vestingPeriod = _vestingPeriod;
+
+        // Generate vesting schedule for the remaining periods
+        for (uint256 i = 1; i < _vestingPeriod; i++) {
+            vestingSchedule.push(vestingSchedule[i - 1] + vestingInterval);
+        }
     }
 
     /**
@@ -36,29 +55,29 @@ contract Vester {
      * @param _token The address of the ERC-20 token to be withdrawn
      */
     function withdraw(address _token) external {
-        require(_token != address(0), "not_valid_address");
-        require(msg.sender == owner, "not_owner");
+        require(_token != address(0), "Vester: not valid address");
+        require(msg.sender == owner, "Vester: not owner");
         uint256 withdrawableAmount = totalLocked / vestingPeriod;
         IERC20 token = IERC20(_token);
 
         require(
             block.timestamp >= vestingSchedule[vestingsClaimed],
-            "Vesting period has not started"
+            "Vester: vesting period has not started"
         );
         require(
-            vestingsClaimed <= vestingSchedule.length,
-            "All tokens already withdrawn"
+            vestingsClaimed < vestingPeriod,
+            "Vester: all tokens already withdrawn"
         );
 
         uint256 currentInterval = vestingSchedule[vestingsClaimed];
         require(
             currentInterval <= block.timestamp,
-            "Not enough time has passed"
+            "Vester: not enough time has passed"
         );
 
         require(
             token.balanceOf(address(this)) >= withdrawableAmount,
-            "Insufficient balance in the contract"
+            "Vester: insufficient balance in the contract"
         );
 
         vestingsClaimed++;
@@ -74,7 +93,7 @@ contract Vester {
     function remainingLockedTokens(
         address _token
     ) external view returns (uint256) {
-        require(_token != address(0), "not_valid_address");
+        require(_token != address(0), "Vester: not valid address");
         IERC20 token = IERC20(_token);
         return token.balanceOf(address(this));
     }
@@ -85,5 +104,24 @@ contract Vester {
      */
     function nextVesting() external view returns (uint256) {
         return vestingSchedule[vestingsClaimed];
+    }
+
+    /**
+     * @dev Emergency withdraw function to claim any remaining tokens after all vestings are claimed
+     * @param _token The address of the ERC-20 token
+     */
+    function extraWithdraw(address _token) external {
+        require(msg.sender == owner, "Vester: not owner");
+        require(_token != address(0), "Vester: not valid address");
+        require(
+            vestingsClaimed == vestingPeriod,
+            "Vester: not all vestings are claimed"
+        );
+        IERC20 token = IERC20(_token);
+        uint256 remainingBalance = token.balanceOf(address(this));
+        require(remainingBalance > 0, "Vester: no remaining balance");
+
+        token.transfer(owner, remainingBalance);
+        emit EmergencyWithdrawn(owner, remainingBalance);
     }
 }
