@@ -42,16 +42,17 @@ const AXM = async (receiverAddresses: string[], amounts: bigint[]) => {
   const axm = await AXM.deploy(receiverAddresses, amounts);
   await axm.waitForDeployment();
 
-  await verify(axm.target.toString(), [
-    receiverAddresses.toString(),
-    amounts.toString(),
-  ]);
+  await verify(axm.target.toString(), [receiverAddresses, amounts]);
   console.log(`Axium token deployed to: ${axm.target}`);
 
   return axm;
 };
 
-const staking = async (rewardTokenAddress: string, rewardPerSecond: bigint) => {
+const staking = async (
+  rewardTokenAddress: string,
+  rewardPerSecond: bigint,
+  superOwnerAddress: string
+) => {
   console.log("Deploying Staking Contract...");
   const Staking = await ethers.getContractFactory("AxiumStaking");
   const staking = await Staking.deploy(rewardTokenAddress, rewardPerSecond);
@@ -63,6 +64,9 @@ const staking = async (rewardTokenAddress: string, rewardPerSecond: bigint) => {
   ]);
   console.log(`- Staking Contract deployed to: ${staking.target}`);
 
+  const tx = await staking.transferOwnership(superOwnerAddress);
+  await tx.wait();
+  console.log("   *Staking Owner transferred to Super Owner");
   return staking;
 };
 

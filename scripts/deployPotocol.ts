@@ -1,6 +1,8 @@
 import { ethers } from "hardhat";
 import deploy from "./deployments/index";
 
+const superOwnerAddress = "0x9dD27489C6F64Eb82C130aE20F674CCa7bd8D136";
+
 async function deployProtocol() {
   const vestingNames = [
     "Advisor Vester", // Advisor address
@@ -57,7 +59,8 @@ async function deployProtocol() {
   const rewardRatePerSecond = ethers.parseUnits("228", 18);
   const stakingContract = await deploy.staking(
     AXM.target.toString(),
-    rewardRatePerSecond
+    rewardRatePerSecond,
+    superOwnerAddress
   );
 }
 
