@@ -12,7 +12,7 @@ describe("StakingContract", function () {
     const axmToken = await AXMToken.deploy();
     await axmToken.waitForDeployment();
 
-    const StakingContract = await ethers.getContractFactory("AxiumStaking");
+    const StakingContract = await ethers.getContractFactory("AxiomStaking");
 
     const stakingContract = await StakingContract.deploy(
       axmToken.target,

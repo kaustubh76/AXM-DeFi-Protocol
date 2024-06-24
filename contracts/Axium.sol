@@ -4,29 +4,29 @@ pragma solidity 0.8.26;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**
- * @title Axium (AXM) ERC-20 Token
+ * @title Axiom (AXM) ERC-20 Token
  * @dev This contract extends the OpenZeppelin ERC20 implementation to customize token deployment.
- * @author Axium
+ * @author Axiom
  */
-contract Axium is ERC20 {
+contract Axiom is ERC20 {
     /**
-     * @dev Initializes the Axium ERC-20 contract with the initial token allocations.
+     * @dev Initializes the Axiom ERC-20 contract with the initial token allocations.
      * @param receiver Array of receivers contract addresses.
      * @param amounts Array of corresponding amounts to mint to each receiver.
      */
     constructor(
         address[] memory receiver,
         uint256[] memory amounts
-    ) payable ERC20("Axium", "AXM") {
+    ) payable ERC20("Axiom", "AXM") {
         require(
             receiver.length == amounts.length,
-            "Axium: Arrays length mismatch"
+            "Axiom: Arrays length mismatch"
         );
 
         for (uint256 i = 0; i < receiver.length; i++) {
             require(
                 receiver[i] != address(0),
-                "Axium: Receiver cannot be zero"
+                "Axiom: Receiver cannot be zero"
             );
             _mint(receiver[i], amounts[i]);
         }

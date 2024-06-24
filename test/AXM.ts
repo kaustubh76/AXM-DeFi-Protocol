@@ -2,18 +2,18 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-describe("Axium Token Contract", function () {
-  async function deployAxiumContract() {
-    let Axium;
-    let axium;
+describe("Axiom Token Contract", function () {
+  async function deployAxiomContract() {
+    let Axiom;
+    let axiom;
     let owner;
     let addr1;
     let addr2;
     let addrs;
-    Axium = await ethers.getContractFactory("Axium");
+    Axiom = await ethers.getContractFactory("Axiom");
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
-    // Deploy Axium contract with initial allocations
+    // Deploy Axiom contract with initial allocations
     const treasuryReserveVester = await addr1.getAddress();
     const teamAndAdvisorsVester = await addr2.getAddress();
     const missionVester = await addrs[0].getAddress();
@@ -36,9 +36,9 @@ describe("Axium Token Contract", function () {
       ethers.parseUnits("100000", 18),
     ];
 
-    axium = await Axium.deploy(vesters, amounts);
+    axiom = await Axiom.deploy(vesters, amounts);
     return {
-      axium,
+      axiom,
       owner,
       addr1,
       addr2,
@@ -47,29 +47,29 @@ describe("Axium Token Contract", function () {
   }
 
   it("Should return the correct name and symbol", async function () {
-    const { axium } = await loadFixture(deployAxiumContract);
-    expect(await axium.name()).to.equal("Axium");
-    expect(await axium.symbol()).to.equal("AXM");
+    const { axiom } = await loadFixture(deployAxiomContract);
+    expect(await axiom.name()).to.equal("Axiom");
+    expect(await axiom.symbol()).to.equal("AXM");
   });
 
   it("Should return the correct initial supply and allocations", async function () {
-    const { axium, addr1, addr2, addrs } = await loadFixture(
-      deployAxiumContract
+    const { axiom, addr1, addr2, addrs } = await loadFixture(
+      deployAxiomContract
     );
-    const totalSupply = await axium.totalSupply();
-    const treasuryReserveBalance = await axium.balanceOf(
+    const totalSupply = await axiom.totalSupply();
+    const treasuryReserveBalance = await axiom.balanceOf(
       await addr1.getAddress()
     );
-    const teamAndAdvisorsBalance = await axium.balanceOf(
+    const teamAndAdvisorsBalance = await axiom.balanceOf(
       await addr2.getAddress()
     );
-    const missionVesterBalance = await axium.balanceOf(
+    const missionVesterBalance = await axiom.balanceOf(
       await addrs[0].getAddress()
     );
-    const publicSaleAndAirdropBalance = await axium.balanceOf(
+    const publicSaleAndAirdropBalance = await axiom.balanceOf(
       await addrs[1].getAddress()
     );
-    const marketingVesterBalance = await axium.balanceOf(addrs[2].getAddress());
+    const marketingVesterBalance = await axiom.balanceOf(addrs[2].getAddress());
 
     expect(totalSupply).to.equal(
       ethers.parseUnits("1000000", 18) // Total supply is the sum of all initial allocations

@@ -6,10 +6,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
- * @title AxiumStaking
+ * @title AxiomStaking
  * @dev A contract that allows users to stake AXM tokens and earn AXM rewards over time.
  */
-contract AxiumStaking is Ownable, ReentrancyGuard {
+contract AxiomStaking is Ownable, ReentrancyGuard {
     IERC20 public axmToken;
     uint256 public rewardRatePerSecond;
     uint256 public totalStaked;

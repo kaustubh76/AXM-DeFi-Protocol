@@ -1,6 +1,6 @@
 # Decentralized Protocol (Arbitrum Mainnet)
 
-## Axium Token - AXM
+## Axiom Token - AXM
 
 - **AXM Token Contract Address:** [0x8bB86B21a831C6f577184dB38562A71454727fbC](https://arbiscan.io/address/0x8bB86B21a831C6f577184dB38562A71454727fbC#code)
 

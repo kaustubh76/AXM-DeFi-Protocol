@@ -38,12 +38,12 @@ const vesters = async (
 
 const AXM = async (receiverAddresses: string[], amounts: bigint[]) => {
   console.log("Deploying AXM Token...");
-  const AXM = await ethers.getContractFactory("Axium");
+  const AXM = await ethers.getContractFactory("Axiom");
   const axm = await AXM.deploy(receiverAddresses, amounts);
   await axm.waitForDeployment();
 
   await verify(axm.target.toString(), [receiverAddresses, amounts]);
-  console.log(`Axium token deployed to: ${axm.target}`);
+  console.log(`Axiom token deployed to: ${axm.target}`);
 
   return axm;
 };
@@ -54,7 +54,7 @@ const staking = async (
   superOwnerAddress: string
 ) => {
   console.log("Deploying Staking Contract...");
-  const Staking = await ethers.getContractFactory("AxiumStaking");
+  const Staking = await ethers.getContractFactory("AxiomStaking");
   const staking = await Staking.deploy(rewardTokenAddress, rewardPerSecond);
   await staking.waitForDeployment();
 
