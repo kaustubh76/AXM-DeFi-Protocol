@@ -1,38 +1,22 @@
-# Protocol
+# Decentralized Protocol (Arbitrum Mainnet)
 
-TODO:
-- Add Vesting to everyone less to the amount to add to the liquidity pool (Update timestamp in the vesting contract) 
-- Total amount to mint.
-- Should it mint more tokens?
-- Staking protocol 
+## Axium Token - AXM
 
-<!-- Mainnet Chain: Base (CHAIN ID: 8453)
+- **AXM Token Contract Address:** [0x8bB86B21a831C6f577184dB38562A71454727fbC](https://arbiscan.io/address/0x8bB86B21a831C6f577184dB38562A71454727fbC#code)
 
-- Harvest ERC-20: [0x486C3fb721c7faA426D4E68D7769b4427F86a7d9](https://basescan.org/address/0x486C3fb721c7faA426D4E68D7769b4427F86a7d9)
-- Vester contract: [0xcb8bBb6ABAF4E16B6c585eC1051E4cb91b89d04a](https://basescan.org/address/0xcb8bBb6ABAF4E16B6c585eC1051E4cb91b89d04a)
+## Staking Contract
 
-Testnet Chain: Base Sepolia (CHAIN ID: 84532)
+- **Contract Address:** [0x07167090E17c4E09d7100a4c66d5272768bA13E4](https://arbiscan.io/address/0x07167090E17c4E09d7100a4c66d5272768bA13E4#code)
+  - **Owner Address:** [0x9dD27489C6F64Eb82C130aE20F674CCa7bd8D136](https://arbiscan.io/address/0x9dD27489C6F64Eb82C130aE20F674CCa7bd8D136)
 
-- Harvest ERC-20: [0x59d7f67abaaf534e1baef17b6b988b0d4e37a966](https://sepolia.basescan.org/address/0x59d7f67abaaf534e1baef17b6b988b0d4e37a966)
-- Vester contract: [0xdb703099243e59ef2d8c741d053444211dcce42d](https://sepolia.basescan.org/address/0xdb703099243e59ef2d8c741d053444211dcce42d)
+## AXM Vester Contracts
 
-## Steps to reproduce
+- **Treasury Vester:** [0xf1d2f99bD57F8Ec1ab32683790820EE45bE39aec](https://arbiscan.io/address/0xf1d2f99bD57F8Ec1ab32683790820EE45bE39aec#code)
+- **Advisor Vester:** [0xaB73d26Ad6E756449dB17BF76a5b00489294e26b](https://arbiscan.io/address/0xaB73d26Ad6E756449dB17BF76a5b00489294e26b#code)
+- **Founder Vester 1:** [0xFccDB42F836DF46C7B1FE9E7A8B45FFA68Ed3184](https://arbiscan.io/address/0xFccDB42F836DF46C7B1FE9E7A8B45FFA68Ed3184#code)
+- **Founder Vester 2:** [0x2D08204bf09CD53dab9e1ca42bC8eB8Ebb076A5F](https://arbiscan.io/address/0x2D08204bf09CD53dab9e1ca42bC8eB8Ebb076A5F#code)
+- **COO Vester 1:** [0xf9d8D5EE6edE5230B7E52524834095fDCFA35755](https://arbiscan.io/address/0xf9d8D5EE6edE5230B7E52524834095fDCFA35755#code)
+- **COO Vester 2:** [0xd3b28e09bF8dC975EbFEE23447f9A50fF2E8F3f5](https://arbiscan.io/address/0xd3b28e09bF8dC975EbFEE23447f9A50fF2E8F3f5#code)
+- **CTO Vester:** [0x696a90941fC53FFdB0a8c08964809266151b859D](https://arbiscan.io/address/0x696a90941fC53FFdB0a8c08964809266151b859D#code)
 
-1. Clone the repository
-2. Run `npm i`
-3. Create a .env file following .env.example.
-
-### Once enviroments are set up
-
-- Smart contract Testing (Base Goerli fork):
-
-  - Run: `npx hardhat test`
-
-- For deployment:
-  - Run: `npx hardhat run scripts/<DEPLOYMENT SCRIPT.TS> --network "<CHOOSEN NETWORK>"`
-
-_Note: Network options:_
-
-    - "hardhat": Forking Base Goerli testnet.
-    - "BaseMainnet": Base Mainnet
-    - "BaseTestnet": Base Goerli Testnet -->
+---
