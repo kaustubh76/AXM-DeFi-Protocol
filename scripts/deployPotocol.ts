@@ -46,14 +46,26 @@ async function deployProtocol() {
     vestingPeriod
   );
 
+  const initialEmission = "0x7108A73C299710B2E4c8bb20ba450Bd8f359EB69";
+  const initialEmissionAmount = ethers.parseUnits("250000", 18);
   const initialDistribution = "0x7108A73C299710B2E4c8bb20ba450Bd8f359EB69";
   const initialDistributionAmount = ethers.parseUnits("250000", 18);
   const marketing = "0x7108A73C299710B2E4c8bb20ba450Bd8f359EB69";
   const marketingAmount = ethers.parseUnits("100000", 18);
 
   const AXM = await deploy.AXM(
-    [...deployedVesterContracts, initialDistribution, marketing],
-    [...vestingAmounts, initialDistributionAmount, marketingAmount]
+    [
+      ...deployedVesterContracts,
+      initialEmission,
+      initialDistribution,
+      marketing,
+    ],
+    [
+      ...vestingAmounts,
+      initialEmissionAmount,
+      initialDistributionAmount,
+      marketingAmount,
+    ]
   );
 
   const rewardRatePerSecond = ethers.parseUnits("228", 18);
